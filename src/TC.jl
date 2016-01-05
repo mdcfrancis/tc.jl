@@ -4,18 +4,9 @@ abstract Arrow{A,R}
 abstract Value{T}
 abstract State{T}
 
-immutable Iterable{T} <: TypeClass
-  start::Arrow{Tuple{T},State{T}}
-  next::Arrow{Tuple{T,State{T}},Tuple{Value{T},State{T}}}
-  done::Arrow{Tuple{T,State{T}},Bool}
-end
-deref{T}( ::Type{T} ) = T.parameters[1]
-@generated iterable{T<:Iterable}( ::Type{T} ) = _is_of_type( T )?:Iterable: :T
+export Arrow, Value, State, TypeClass, is_of_type
 
-immutable Enumerable{T} <: TypeClass
-  _super::Tuple{Iterable{T}}
-  length::Arrow{Tuple{T},Int64}
-end
+deref{T}( ::Type{T} ) = T.parameters[1]
 
 totype{T}( t::Type{T} ) = T
 totype{T}( t::Type{Value{T}}) = retval(next, Tuple{T,totype(State{T})}).parameters[1]
@@ -51,11 +42,11 @@ function check_sig{A,R}( t::Type{Arrow{A,R}}, f::Symbol )
 end
 
 _is_of_type{T}( ::Type{T}) = false
-function _is_of_type{TC<:TypeClass}( typ::Type{TC} )
+function _is_of_type{TTC<:TypeClass}( typ::Type{TTC} )
   return !contains( (f,comp)->comp == check_sig( fieldtype( typ, f ) ,f ), fieldnames( typ ), false)
 end
 
-@generated function is_of_type{TC<:TypeClass}( typ::Type{TC} )
+@generated function is_of_type{TTC<:TypeClass}( typ::Type{TTC} )
   _is_of_type(deref( typ ))?:(true) : :(false)
 end
 
