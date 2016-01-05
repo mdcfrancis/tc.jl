@@ -9,8 +9,8 @@ immutable Iterable{T} <: TypeClass
   next::Arrow{Tuple{T,State{T}},Tuple{Value{T},State{T}}}
   done::Arrow{Tuple{T,State{T}},Bool}
 end
-deref{T}( ::Type{T}) = T
-@generated iterable{T<:Iterable}( ::Type{T} ) = _is_of_type( deref( T ) )?:Iterable: :T
+deref{T}( ::Type{T} ) = T.parameters[1]
+@generated iterable{T<:Iterable}( ::Type{T} ) = _is_of_type( T )?:Iterable: :T
 
 immutable Enumerable{T} <: TypeClass
   _super::Tuple{Iterable{T}}
